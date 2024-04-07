@@ -122,18 +122,29 @@ void wait_for_button_sequence(int *buttonSequence) {
 
 int get_rating() {
   int rating = 0;
+  int buttonPressed = NONE;
 
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print(" L            R ");
-  lcd.setCursor(3 + rating, 0);
-  lcd.write(DOWN_ARROW);
-  lcd.setCursor(0, 1);
-  lcd.print("   0123456789   ");
+  while (1) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(" L            R ");
+    lcd.setCursor(3 + rating, 0);
+    lcd.write(DOWN_ARROW);
+    lcd.setCursor(0, 1);
+    lcd.print("   0123456789   ");
 
-  wait_for_butto_press(LEFT | RIGHT | SELECT);
+    buttonPressed = wait_for_button_press(LEFT | RIGHT | SELECT);
 
-  return rating;
+    switch (buttonPressed) {
+      case SELECT:
+        return rating;
+      case  LEFT:
+        rating = (rating - 1 < 0) ? 0 : rating - 1;
+        break;
+      case RIGHT:
+        rating = (rating + 1 > 9) ? 9 : rating + 1;
+    }
+  }
 }
 
 void setup() {
@@ -200,7 +211,14 @@ void loop() {
 
   buttonPressed = wait_for_button_press(ALL);
 
-  get_rating();
+  int rating = get_rating();
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Rating: ");
+  lcd.print(rating);
+  lcd.setCursor(0, 1);
+  lcd.print("");
 
   buttonPressed = wait_for_button_press(ALL);
 
